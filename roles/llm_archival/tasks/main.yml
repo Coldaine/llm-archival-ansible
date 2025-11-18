@@ -1,0 +1,28 @@
+---
+# Placeholder role to deploy archival scripts and schedule recurring runs
+- name: Ensure scripts directory exists
+  file:
+    path: "{{ 'E:\\scripts' if ansible_os_family == 'Windows' else '/home/{{ ansible_user }}/scripts' }}"
+    state: directory
+    mode: '0755'
+
+- name: Deploy archival script for Windows
+  copy:
+    src: "E:\\Obsidian Vault\\Operations and Infrastructure\\Scripts\\archive-llm-all.ps1"
+    dest: "E:\\scripts\\archive-llm-all.ps1"
+    mode: '0755'
+  when: ansible_os_family == 'Windows'
+
+- name: Configure scheduled task (Windows)
+  win_scheduled_task:
+    name: "LLM Chat Archival"
+    description: "Archive all LLM conversations every 6 hours"
+    actions:
+      - path: powershell.exe
+        arguments: "-ExecutionPolicy Bypass -File 'E:\\scripts\\archive-llm-all.ps1'"
+    triggers:
+      - type: daily
+        start_boundary: "{{ ansible_date_time.iso8601 }}"
+        repetition:
+          interval: PT6H
+  when: ansible_os_family == 'Windows'

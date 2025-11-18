@@ -1,0 +1,20 @@
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+obsidian_vault=E:\\Obsidian Vault
+scripts_dir={{ 'E:\\scripts' if ansible_os_family == 'Windows' else '/home/{{ ansible_user }}/scripts' }}
+
+[windows_workstations]
+PATRICK-DESKTOP ansible_host=localhost ansible_connection=local
+icarus-windows ansible_host=192.168.1.150 ansible_connection=winrm
+
+[linux_servers]
+zo ansible_host=ts1.zocomputer.io ansible_port=10439 ansible_user=root ansible_ssh_private_key_file=~/.ssh/id_rsa_zo
+pi ansible_host=192.168.1.49 ansible_user=coldaine ansible_ssh_private_key_file=~/.ssh/id_ed25519_pi
+
+[primary_workstations]
+PATRICK-DESKTOP
+icarus-windows
+
+[infrastructure_servers]
+zo
+pi

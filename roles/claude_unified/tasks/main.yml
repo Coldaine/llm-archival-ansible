@@ -1,0 +1,5 @@
+---
+# Placeholder role to deploy Claude/Kilo configurations
+- name: Placeholder - Claude unified configs deployment
+  debug:
+    msg: "Claude unified role to be implemented"
