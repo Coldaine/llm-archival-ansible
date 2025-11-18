@@ -8,3 +8,5 @@
     - claude_unified
     - mcp_servers
     - llm_archival
+    - { role: tailscale, when: enable_tailscale | default(false) }
+    - { role: cloudflare_tunnel, when: enable_cloudflare_tunnel | default(false) }

@@ -1,0 +1,6 @@
+---
+enable_tailscale: false
+enable_cloudflare_tunnel: false
+tailscale_route_advertise: []          # e.g. ["192.168.1.0/24"]
+cloudflare_tunnel_hostname: ""        # e.g. tunnel.example.com
+cloudflare_tunnel_services: []         # e.g. ["localhost:3456", "localhost:8080"]

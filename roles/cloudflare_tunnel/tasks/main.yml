@@ -1,0 +1,45 @@
+---
+- name: Install cloudflared on Linux
+  shell: |
+    if ! command -v cloudflared >/dev/null 2>&1; then 
+      wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -O /tmp/cloudflared.deb && \
+      apt-get update && apt-get install -y /tmp/cloudflared.deb; \
+    fi
+  args:
+    executable: /bin/bash
+  become: yes
+  when: ansible_os_family != 'Windows' and (enable_cloudflare_tunnel | default(false))
+
+- name: Install cloudflared on Windows (Chocolatey)
+  win_shell: |
+    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) { Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')) }
+    if (-not (choco list --local-only | Select-String -Pattern 'cloudflared')) { choco install cloudflared -y }
+  when: ansible_os_family == 'Windows' and (enable_cloudflare_tunnel | default(false))
+
+- name: Create Cloudflare tunnel directory (Linux)
+  file:
+    path: /etc/cloudflared
+    state: directory
+    mode: '0755'
+  become: yes
+  when: ansible_os_family != 'Windows' and (enable_cloudflare_tunnel | default(false))
+
+- name: Create Cloudflare tunnel config (Linux)
+  copy:
+    dest: /etc/cloudflared/config.yml
+    mode: '0644'
+    content: |
+      tunnel: auto
+      credentials-file: /etc/cloudflared/credentials.json
+      ingress:
+      {% for svc in cloudflare_tunnel_services %}
+        - hostname: {{ cloudflare_tunnel_hostname }}
+          service: http://{{ svc }}
+      {% endfor %}
+        - service: http_status:404
+  when: ansible_os_family != 'Windows' and (enable_cloudflare_tunnel | default(false)) and cloudflare_tunnel_hostname != '' and cloudflare_tunnel_services | length > 0
+
+- name: Placeholder tunnel authentication step
+  debug:
+    msg: "Run: cloudflared tunnel login && cloudflared tunnel create <name>; store cert in Bitwarden."
+  when: enable_cloudflare_tunnel | default(false)

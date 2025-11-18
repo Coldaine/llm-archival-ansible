@@ -1,0 +1,17 @@
+---
+# SAMPLE ENCRYPTED VAULT FILE (DO NOT USE IN PRODUCTION)
+# Copy to vault.yml and run: ansible-vault encrypt group_vars/all/vault.yml
+
+bws_access_token: "bws_SAMPLE_TOKEN_REPLACE_ME"
+vault_postgres_password: "CHANGE_ME_POSTGRES"
+tailscale_auth_key: "tskey-auth-REPLACE_ME"
+cloudflare_api_token: "CLOUDFLARE_API_TOKEN_REPLACE_ME"
+
+# Example secret IDs (Bitwarden secret identifiers if using lookup patterns)
+bitwarden_secret_ids:
+  github_pat_id: "uuid-github"
+  anthropic_api_key_id: "uuid-anthropic"
+  openai_api_key_id: "uuid-openai"
+  gemini_api_key_id: "uuid-gemini"
+  browserbase_api_key_id: "uuid-browserbase"
+  browserbase_project_id: "uuid-browserbase-project"
