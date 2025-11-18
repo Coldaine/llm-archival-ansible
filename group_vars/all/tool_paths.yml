@@ -1,0 +1,26 @@
+# Application coverage for LLM archival
+# Non-core sources (Google Drive, Figma, macOS) are disabled by default
+
+enable_gdrive: false
+enable_figma: false
+enable_macos: false
+
+windows_tool_paths:
+  - "%USERPROFILE%\.claude\projects\"
+  - "%APPDATA%\Claude\projects\"
+  - "%APPDATA%\Roaming\Goose\Local Storage\leveldb\"
+  - "%APPDATA%\Cursor\User\History\"
+  - "%APPDATA%\Code\User\globalStorage\github.copilot-chat\"
+  - "%APPDATA%\Code\User\globalStorage\kilocode.kilo-code\"
+  - "%USERPROFILE%\.gemini\chats\"
+  - "%APPDATA%\Jan\data\threads\"
+
+linux_tool_paths:
+  - "$XDG_CACHE_HOME/aider/"
+  - "$XDG_CONFIG_HOME/aider/"
+  - "~/.gemini/"
+  - "~/.config/goose/"
+  - "~/.codex/sessions/"
+  - "~/.qwen/"
+
+macos_tool_paths: []

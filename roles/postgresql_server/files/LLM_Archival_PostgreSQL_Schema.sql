@@ -1,0 +1,2 @@
+-- Placeholder for LLM Archival PostgreSQL schema
+-- Add your CREATE TABLE statements here

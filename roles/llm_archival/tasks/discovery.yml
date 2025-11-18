@@ -1,0 +1,5 @@
+---
+# Discover installed tools and known paths (placeholder)
+- name: Discovery placeholder
+  debug:
+    msg: "Run discovery scripts and collect paths here"

@@ -26,3 +26,24 @@
         repetition:
           interval: PT6H
   when: ansible_os_family == 'Windows'
+
+- name: Include discovery tasks
+  include_tasks: discovery.yml
+
+- name: Include conversations archival tasks
+  include_tasks: conversations.yml
+
+- name: Include configurations archival tasks
+  include_tasks: configurations.yml
+
+- name: Include logs archival tasks
+  include_tasks: logs.yml
+
+- name: Run extractor prototypes
+  include_tasks: extractors.yml
+  vars:
+    extractor_dir: "E:\Obsidian Vault\LLM_Parsing_Project\prototypes"
+    python_executable: "python"
+
+- name: Setup Linux cron job for archival
+  include_tasks: cron.yml

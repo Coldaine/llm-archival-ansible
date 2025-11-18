@@ -1,0 +1,9 @@
+---
+# Linux cron job for archival
+- name: Setup LLM archival cron job (Linux only)
+  cron:
+    name: "LLM Archival - Conversations"
+    job: "/home/{{ ansible_user }}/scripts/archive-llm-all.sh >> /var/log/llm-archival.log 2>&1"
+    minute: "0"
+    hour: "*/6"
+  when: ansible_os_family != 'Windows'
