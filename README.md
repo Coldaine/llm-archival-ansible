@@ -90,43 +90,78 @@ Nothing here alters non-Ansible vault organization—scope remains confined to t
 - Future enhancement: dynamic secret fetch (GitHub PAT, API keys) before other roles.
 
 ### Order of Operations
-1. bitwarden-setup
-2. tailscale (optional)
-3. cloudflare_tunnel (optional)
-4. claude_unified / mcp_servers / llm_archival / postgresql_server
+The `deploy-all-configs.yml` playbook runs roles in this order:
+1. bitwarden-setup (required)
+2. claude_unified (placeholder, future)
+3. mcp_servers (placeholder, future)
+4. llm_archival (core functionality)
+5. tailscale (optional, controlled by `enable_tailscale`)
+6. cloudflare_tunnel (optional, controlled by `enable_cloudflare_tunnel`)
+
+**Note:** `postgresql_server` role is NOT auto-included. See PostgreSQL section below for manual setup.
 
 ## Python Extractors
 - Place extractor scripts in `LLM_Parsing_Project/prototypes/`
 - Ansible will invoke them automatically during archival
 
-## PostgreSQL
-- Optional: enable on infrastructure servers for central storage
-	- Add `enable_postgres: true` in host/group vars (future gating variable)
-	- Provides containerized `postgres:15-alpine` with schema bootstrap
+## PostgreSQL (Manual Setup Only)
+The `postgresql_server` role provides optional centralized storage but is **NOT automatically run** by `deploy-all-configs.yml`.
 
-Not yet invoked automatically in `deploy-all-configs.yml`—add deliberately once a target host is prepared (disk, backup policy). A future gating variable (`enable_postgres`) will control inclusion.
+**To enable PostgreSQL:**
+
+1. Add the role manually to your playbook or create a separate playbook:
+```yaml
+# playbooks/deploy-postgres.yml
+---
+- name: Deploy PostgreSQL Server
+  hosts: infrastructure_servers
+  become: false
+  roles:
+    - postgresql_server
+```
+
+2. Run the PostgreSQL deployment:
+```sh
+ansible-playbook -i inventory/hosts playbooks/deploy-postgres.yml --ask-vault-pass
+```
+
+**Requirements:**
+- Target host must have Docker installed
+- Ensure `vault_postgres_password` is set in encrypted `vault.yml`
+- Plan for disk space (default: `/mnt/postgres_data`)
+- Establish backup policy before production use
+
+**Future:** A gating variable (`enable_postgres`) will allow conditional inclusion in the main playbook.
 
 ## Network (Optional)
 Tailscale & Cloudflare Tunnel are disabled by default.
 
-Enable by editing `group_vars/all/network.yml`:
+**Step 1: Add secrets to encrypted vault.yml:**
 ```yaml
+# In group_vars/all/vault.yml (encrypted with ansible-vault)
+tailscale_auth_key: "tskey-auth-ACTUAL_KEY_HERE"
+cloudflare_api_token: "CLOUDFLARE_API_TOKEN_HERE"
+```
+
+**Step 2: Enable features in network.yml:**
+```yaml
+# In group_vars/all/network.yml (unencrypted, safe to commit)
 enable_tailscale: true
 enable_cloudflare_tunnel: true
-tailscale_auth_key: "tskey-auth-..."   # In vault.yml (encrypted)
 cloudflare_tunnel_hostname: "tunnel.example.com"
 cloudflare_tunnel_services:
 	- "localhost:3456"
 	- "localhost:8080"
 ```
-Then run:
+
+**Step 3: Deploy:**
 ```sh
 ansible-playbook -i inventory/hosts playbooks/deploy-all-configs.yml --ask-vault-pass
 ```
 
-Notes:
-- Cloudflare tunnel will only expose explicitly listed services; omit to keep tunnel dormant.
-- Ensure `tailscale_auth_key` and `cloudflare_api_token` are present in encrypted `vault.yml` before enabling.
+**Important:**
+- Never put auth keys or API tokens in `network.yml` - they belong only in encrypted `vault.yml`
+- Cloudflare tunnel will only expose explicitly listed services; omit to keep tunnel dormant
 
 ## Scheduling
 - Windows: `win_scheduled_task` for 6h archival cadence

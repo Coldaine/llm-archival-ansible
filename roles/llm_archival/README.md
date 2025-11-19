@@ -11,8 +11,14 @@ Purpose: Set up scheduled extraction of local LLM/chat application data using Py
 | Variable | Location | Description |
 |----------|----------|-------------|
 | `tool_base_paths` | `group_vars/all/tool_paths.yml` | Root paths for each tool's data store. |
-| `archive_interval_hours` (future) | (vars) | Override default 6 hour cadence. |
-| `python_exec` (future) | (vars) | Path to Python interpreter if not system default. |
+| `archival_base_dir` | `group_vars/all/archival.yml` | Base directory for Obsidian Vault per OS family. |
+| `archival_scripts_dir` | `group_vars/all/archival.yml` | Scripts installation directory per OS family. |
+| `archival_extractor_dir` | `group_vars/all/archival.yml` | Python extractor prototypes directory per OS family. |
+| `archival_interval_hours` | `group_vars/all/archival.yml` | Archival cadence in hours (default: 6). |
+| `archival_python_executable` | `group_vars/all/archival.yml` | Python interpreter path (default: "python"). |
+| `computed_scripts_dir` | `group_vars/all/archival.yml` | Auto-computed scripts path for current OS. |
+| `computed_extractor_dir` | `group_vars/all/archival.yml` | Auto-computed extractor path for current OS. |
+| `computed_base_dir` | `group_vars/all/archival.yml` | Auto-computed base directory for current OS. |
 
 ## Planned Additions
 - Offset tracking table (when PostgreSQL enabled) to process only new messages.

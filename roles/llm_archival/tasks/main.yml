@@ -2,29 +2,29 @@
 # Placeholder role to deploy archival scripts and schedule recurring runs
 - name: Ensure scripts directory exists
   file:
-    path: "{{ 'E:\\scripts' if ansible_os_family == 'Windows' else '/home/{{ ansible_user }}/scripts' }}"
+    path: "{{ computed_scripts_dir }}"
     state: directory
     mode: '0755'
 
 - name: Deploy archival script for Windows
   copy:
-    src: "E:\\Obsidian Vault\\Operations and Infrastructure\\Scripts\\archive-llm-all.ps1"
-    dest: "E:\\scripts\\archive-llm-all.ps1"
+    src: "{{ computed_base_dir }}\\Operations and Infrastructure\\Scripts\\archive-llm-all.ps1"
+    dest: "{{ computed_scripts_dir }}\\archive-llm-all.ps1"
     mode: '0755'
   when: ansible_os_family == 'Windows'
 
 - name: Configure scheduled task (Windows)
   win_scheduled_task:
     name: "LLM Chat Archival"
-    description: "Archive all LLM conversations every 6 hours"
+    description: "Archive all LLM conversations every {{ archival_interval_hours }} hours"
     actions:
       - path: powershell.exe
-        arguments: "-ExecutionPolicy Bypass -File 'E:\\scripts\\archive-llm-all.ps1'"
+        arguments: "-ExecutionPolicy Bypass -File '{{ computed_scripts_dir }}\\archive-llm-all.ps1'"
     triggers:
       - type: daily
         start_boundary: "{{ ansible_date_time.iso8601 }}"
         repetition:
-          interval: PT6H
+          interval: PT{{ archival_interval_hours }}H
   when: ansible_os_family == 'Windows'
 
 - name: Include discovery tasks
@@ -42,8 +42,8 @@
 - name: Run extractor prototypes
   include_tasks: extractors.yml
   vars:
-    extractor_dir: "E:\Obsidian Vault\LLM_Parsing_Project\prototypes"
-    python_executable: "python"
+    extractor_dir: "{{ computed_extractor_dir }}"
+    python_executable: "{{ archival_python_executable }}"
 
 - name: Setup Linux cron job for archival
   include_tasks: cron.yml

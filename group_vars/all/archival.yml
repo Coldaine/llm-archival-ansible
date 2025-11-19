@@ -1,0 +1,37 @@
+---
+# LLM Archival configuration and paths
+
+# Base directories for different OS families
+archival_base_dir:
+  Windows: "E:\\Obsidian Vault"
+  Debian: "/opt/obsidian-vault"
+  RedHat: "/opt/obsidian-vault"
+  Darwin: "/Users/Shared/obsidian-vault"
+
+# Scripts directory per OS
+archival_scripts_dir:
+  Windows: "E:\\scripts"
+  Debian: "/home/{{ ansible_user }}/scripts"
+  RedHat: "/home/{{ ansible_user }}/scripts"
+  Darwin: "/Users/{{ ansible_user }}/scripts"
+
+# Extractor prototypes directory (relative to base_dir)
+archival_extractor_subpath: "LLM_Parsing_Project/prototypes"
+
+# Full extractor directory per OS
+archival_extractor_dir:
+  Windows: "{{ archival_base_dir.Windows }}\\{{ archival_extractor_subpath }}"
+  Debian: "{{ archival_base_dir.Debian }}/{{ archival_extractor_subpath }}"
+  RedHat: "{{ archival_base_dir.RedHat }}/{{ archival_extractor_subpath }}"
+  Darwin: "{{ archival_base_dir.Darwin }}/{{ archival_extractor_subpath }}"
+
+# Archival interval (hours)
+archival_interval_hours: 6
+
+# Python executable (override per host if needed)
+archival_python_executable: "python"
+
+# Computed paths (use in roles)
+computed_scripts_dir: "{{ archival_scripts_dir[ansible_os_family] }}"
+computed_extractor_dir: "{{ archival_extractor_dir[ansible_os_family] }}"
+computed_base_dir: "{{ archival_base_dir[ansible_os_family] }}"
