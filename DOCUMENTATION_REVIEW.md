@@ -1,3 +1,40 @@
+## 🚨 #critical #manuallyOrdered #directedFromUser ARCHITECTURAL PIVOT: Database-Centric "Harvester" Model
+
+**Decision Date**: 2025-11-20
+**Status**: **MANDATORY ARCHITECTURAL CHANGE**
+
+The current file-based archival strategy (syncing JSON files across machines) is **rejected** due to:
+1.  **Data Silos**: Requires complex file syncing (Syncthing/Git) which leads to conflicts.
+2.  **Deduplication Complexity**: File-level deduplication is fragile and difficult to maintain.
+3.  **Search Fragmentation**: Searching across scattered files is inefficient.
+
+**New Architecture: Hub-and-Spoke "Harvester" Model**
+
+Instead of managing files, Ansible will deploy **Harvesters** that push data to a central **Cloud-Hosted Database**.
+
+### 1. The Hub: Central Database
+*   **Choice**: **PostgreSQL** (Cloud-hosted or Self-hosted) or **MongoDB Atlas**.
+    *   *Reasoning*:
+        *   **PostgreSQL**: Best for structured data, relational integrity, and strong JSONB support. Good for initial simplicity.
+        *   **MongoDB**: Excellent for flexible schema (handling varied LLM payloads) and rapid scaling.
+    *   **Future Enhancement**: **Vector Database** (Pinecone, Weaviate, or S3 Vectors) for semantic search and RAG.
+*   **Role**: The "Single Source of Truth".
+*   **Deduplication**: Handled natively by the database via `UPSERT` / `INSERT ON CONFLICT` operations on unique Conversation IDs.
+
+### 2. The Spokes: "Harvester" Agents
+*   **What**: Python scripts deployed by Ansible to all nodes (Desktop, Laptop, Server).
+*   **Function**:
+    1.  Locate local LLM data (Browser storage, LevelDB, JSON dumps).
+    2.  Parse/Extract into a standardized payload.
+    3.  **Push directly to the Central Database**.
+*   **Key Benefit**: Harvesters are stateless. They don't care about previous runs or other machines. They just ensure the DB has the latest state.
+
+### 3. The View: Obsidian Integration
+*   **Method**: A separate "Generator" script (running on the primary machine) pulls clean, deduplicated data from the Database and generates/updates Markdown files in the Obsidian Vault.
+*   **Result**: Obsidian becomes a *view layer*, not the storage layer.
+
+---
+
 # Documentation Review - LLM Archival Ansible
 
 **Review Date**: 2025-11-19
