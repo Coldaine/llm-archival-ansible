@@ -1,0 +1,22 @@
+---
+# Ansible variables with BWS integration for LLM Archival System
+# This template references secrets stored in Bitwarden Secrets Manager
+
+# BWS Configuration
+bws_access_token: "{{ vault_bws_access_token }}"
+bws_secrets:
+  cerebras_existing_id: "550e8400-e29b-41d4-a716-446655440000"
+  cerebras_paid_abi_id: "550e8400-e29b-41d4-a716-446655440001"
+  fernet_key_id: "550e8400-e29b-41d4-a716-446655440002"
+
+# API Keys (retrieved from BWS during runtime)
+cerebras_key: "{{ bws_cerebras_existing }}"
+cerebras_paid_key: "{{ bws_cerebras_paid_abi }}"
+fernet_key: "{{ bws_fernet_key }}"
+
+# LLM Archival Configuration
+llm_archival:
+  api_endpoint: "https://api.cerebras.ai/v1"
+  collection_name: "LLM_Archival"
+  encryption_enabled: true
+  log_level: "INFO"

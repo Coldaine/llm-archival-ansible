@@ -1,0 +1,5 @@
+---
+# Conversation archival (placeholder)
+- name: Conversations archival placeholder
+  debug:
+    msg: "Archive conversations using platform scripts or extractors"

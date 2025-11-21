@@ -1,0 +1,5 @@
+---
+# Log archival (placeholder)
+- name: Logs archival placeholder
+  debug:
+    msg: "Archive logs with redaction of sensitive tokens"

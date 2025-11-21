@@ -1,0 +1,45 @@
+---
+# Placeholder role to provision Bitwarden Secrets Manager CLI and token
+- name: Install Bitwarden CLI (Linux)
+  package:
+    name: bws
+    state: present
+  become: yes
+  when: ansible_os_family != 'Windows'
+
+- name: Ensure BWS config directory exists (Linux)
+  file:
+    path: "{{ ansible_env.HOME }}/.config/bws"
+    state: directory
+    mode: '0700'
+  when: ansible_os_family != 'Windows'
+
+- name: Write BWS token file (Linux)
+  copy:
+    content: "{{ bws_access_token | default('REPLACE_ME') }}"
+    dest: "{{ ansible_env.HOME }}/.config/bws/token"
+    mode: '0600'
+  no_log: true
+  when: ansible_os_family != 'Windows'
+
+- name: Add BWS token to shell env (Linux)
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    line: 'export BWS_ACCESS_TOKEN=$(cat ~/.config/bws/token)'
+    create: yes
+  when: ansible_os_family != 'Windows'
+
+- name: Install Bitwarden CLI (Windows via Scoop)
+  win_shell: |
+    if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) { iwr get.scoop.sh -useb | iex }
+    if (-not (scoop list | Select-String -Pattern "bws")) { scoop install bws }
+  when: ansible_os_family == 'Windows'
+
+- name: Set BWS token as user environment variable (Windows)
+  win_environment:
+    name: BWS_ACCESS_TOKEN
+    value: "{{ bws_access_token | default('REPLACE_ME') }}"
+    state: present
+    level: user
+  no_log: true
+  when: ansible_os_family == 'Windows'

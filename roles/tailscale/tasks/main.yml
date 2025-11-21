@@ -1,0 +1,40 @@
+---
+- name: Install Tailscale on Linux
+  shell: |
+    curl -fsSL https://tailscale.com/install.sh | sh
+  args:
+    executable: /bin/bash
+  when: ansible_os_family != 'Windows'
+  register: tailscale_install_linux
+  changed_when: "'already installed' not in tailscale_install_linux.stdout | lower"
+  when: enable_tailscale | default(false)
+
+- name: Install Tailscale on Windows (Chocolatey)
+  win_shell: |
+    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) { Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')) }
+    if (-not (choco list --local-only | Select-String -Pattern 'tailscale')) { choco install tailscale -y }
+  when: ansible_os_family == 'Windows' and (enable_tailscale | default(false))
+
+- name: Authenticate Tailscale (Linux)
+  shell: |
+    tailscale up --authkey {{ tailscale_auth_key }} {{ '--advertise-routes ' + (tailscale_route_advertise | join(',')) if tailscale_route_advertise | length > 0 else '' }} --accept-routes=true
+  args:
+    executable: /bin/bash
+  when: ansible_os_family != 'Windows' and (enable_tailscale | default(false)) and tailscale_auth_key is defined and tailscale_auth_key != ''
+
+- name: Authenticate Tailscale (Windows)
+  win_shell: |
+    tailscale up --authkey "{{ tailscale_auth_key }}" --accept-routes=true
+  when: ansible_os_family == 'Windows' and (enable_tailscale | default(false)) and tailscale_auth_key is defined and tailscale_auth_key != ''
+
+- name: Display Tailscale status (Linux)
+  shell: tailscale status
+  args:
+    executable: /bin/bash
+  register: tailscale_status
+  when: ansible_os_family != 'Windows' and (enable_tailscale | default(false))
+
+- name: Show Tailscale status summary
+  debug:
+    msg: "{{ tailscale_status.stdout | default('Tailscale status not collected') }}"
+  when: enable_tailscale | default(false)

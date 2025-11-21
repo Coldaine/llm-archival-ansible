@@ -1,0 +1,50 @@
+# Ansible
+*.retry
+*.log
+.vagrant/
+.venv/
+__pycache__/
+.cache/
+.pytest_cache/
+.DS_Store
+.idea/
+.vscode/
+
+# Vault and secrets
+.vault_pass
+.vault_password
+**/group_vars/all/vault.yml
+**/group_vars/all/vault.yaml
+.env
+secrets.env
+
+# BWS temporary files
+.bws/
+*.bws-token
+
+# Environment files with secrets
+.env.*
+*_secrets.yml
+*_secrets.yaml
+secrets_config.yml
+
+# Python artifacts
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.egg-info/
+**/.mypy_cache/
+**/.coverage
+**/.pytest_cache/
+
+# Local configs and temp files
+*.swp
+*.swo
+*.bak
+*.tmp
+*.orig
+
+# OS-specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini

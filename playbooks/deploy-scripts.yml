@@ -1,0 +1,29 @@
+---
+- name: Deploy shared Scripts to all machines
+  hosts: all
+  gather_facts: true
+
+  vars:
+    local_scripts_root: "E:\\Obsidian Vault\\Operations and Infrastructure\\Scripts"
+    remote_scripts_dir: "{{ 'E:\\scripts' if ansible_os_family == 'Windows' else '/home/{{ ansible_user }}/scripts' }}"
+
+  tasks:
+    - name: Ensure remote scripts directory exists
+      file:
+        path: "{{ remote_scripts_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy archival script (Windows PowerShell)
+      copy:
+        src: "{{ local_scripts_root }}\\archive-llm-all.ps1"
+        dest: "{{ remote_scripts_dir }}\\archive-llm-all.ps1"
+        mode: '0755'
+      when: ansible_os_family == 'Windows'
+
+    - name: Copy archival script (Linux Bash)
+      copy:
+        src: "{{ local_scripts_root }}/archive-llm-all.sh"
+        dest: "{{ remote_scripts_dir }}/archive-llm-all.sh"
+        mode: '0755'
+      when: ansible_os_family != 'Windows'

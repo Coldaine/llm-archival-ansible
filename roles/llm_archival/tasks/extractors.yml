@@ -1,0 +1,37 @@
+---
+# Invoke extractor prototypes for LLM archival
+- name: Run JSONL extractor (Windows/Linux)
+  shell: |
+    cd "{{ extractor_dir }}"
+    python jsonl_parser.py inline
+  args:
+    executable: "{{ python_executable | default('python') }}"
+  register: jsonl_extract
+  ignore_errors: yes
+
+- name: Run Base64 JSONL extractor
+  shell: |
+    cd "{{ extractor_dir }}"
+    python base64_jsonl_decoder.py inline
+  args:
+    executable: "{{ python_executable | default('python') }}"
+  register: base64_extract
+  ignore_errors: yes
+
+- name: Run LevelDB extractor
+  shell: |
+    cd "{{ extractor_dir }}"
+    python leveldb_extractor.py inline
+  args:
+    executable: "{{ python_executable | default('python') }}"
+  register: leveldb_extract
+  ignore_errors: yes
+
+- name: Run orchestrator (summary)
+  shell: |
+    cd "{{ extractor_dir }}"
+    python main_orchestrator.py --sample --summary
+  args:
+    executable: "{{ python_executable | default('python') }}"
+  register: orchestrator_summary
+  ignore_errors: yes

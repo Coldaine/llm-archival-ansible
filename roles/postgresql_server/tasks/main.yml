@@ -1,0 +1,31 @@
+---
+
+- name: Ensure Docker is installed (Linux only)
+  package:
+    name: docker
+    state: present
+  become: yes
+  when: ansible_os_family != 'Windows'
+
+- name: Start PostgreSQL container
+  community.docker.docker_container:
+    name: llm_postgres
+    image: "postgres:15-alpine"
+    ports:
+      - "5432:5432"
+    volumes:
+      - "/mnt/postgres_data:/var/lib/postgresql/data"
+      - "{{ role_path }}/files/LLM_Archival_PostgreSQL_Schema.sql:/docker-entrypoint-initdb.d/schema.sql"
+    env:
+      POSTGRES_USER: "llm_archival"
+      POSTGRES_PASSWORD: "{{ vault_postgres_password | default('changeme') }}"
+      POSTGRES_DB: "llm_archival"
+    restart_policy: always
+  when: ansible_os_family != 'Windows'
+
+- name: Wait for PostgreSQL to be ready
+  wait_for:
+    host: "localhost"
+    port: 5432
+    timeout: 60
+  when: ansible_os_family != 'Windows'

@@ -1,0 +1,5 @@
+---
+# Placeholder role to deploy MCP server configurations
+- name: Placeholder - MCP servers deployment
+  debug:
+    msg: "MCP servers role to be implemented"

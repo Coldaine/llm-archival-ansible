@@ -1,0 +1,5 @@
+---
+# Configuration archival (placeholder)
+- name: Configurations archival placeholder
+  debug:
+    msg: "Collect, sanitize, and archive config files"
